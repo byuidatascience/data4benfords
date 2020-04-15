@@ -346,7 +346,7 @@ dpr_document(last_digit, extension = ".md.R", export_folder = usethis::proj_get(
              title = "The counts and percentage of last digits for all data objects",
              description = "This data has to counts by last digit for the election, waitlist, and cities data",
              source = "https://github.com/midnightradio/cse140-data-programming, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5942457/, and https://simplemaps.com/data/us-cities",
-             var_details = benford_description)
+             var_details = last_digit_description)
 
 dpr_document(pick_random, extension = ".md.R", export_folder = usethis::proj_get(),
              object_name = "pick_random", 

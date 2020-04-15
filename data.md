@@ -251,31 +251,6 @@ A data frame with columns:
 
 
 
-## The counts and percentage of last digits for all data objects
-
-The data is called last_digit.
-
-### Description
-
-This data has to counts by last digit for the election, waitlist, and cities data
-
-The source of this data is < https://github.com/midnightradio/cse140-data-programming, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5942457/, and https://simplemaps.com/data/us-cities >
-
-### Data format
-
-A data frame with columns:
-
-|variable     |class     |description                                              |
-|:------------|:---------|:--------------------------------------------------------|
-|data         |character |The data object used to calculate digit counts           |
-|country      |character |The location or group within each data object            |
-|last         |character |NA                                                       |
-|n            |integer   |The count of numbers that started with that digit        |
-|percent      |numeric   |The percent of the total for each data and country group |
-|last_percent |numeric   |NA                                                       |
-
-
-
 ## The counts and percentage of last digits for college students asked to pick random numbers
 
 The data is called pick_random.
@@ -297,6 +272,31 @@ A data frame with columns:
 |percent_09   |numeric   |The percentage of each digit of the total for the 0-9 digit counts     |
 |n_last       |integer   |The count of the last digit of numbers picked between 0 and 1 million. |
 |percent_last |numeric   |The percentage of each digt of the total for the last digit counts.    |
+
+
+
+## The counts and percentage of last digits for all data objects
+
+The data is called last_digit.
+
+### Description
+
+This data has to counts by last digit for the election, waitlist, and cities data
+
+The source of this data is < https://github.com/midnightradio/cse140-data-programming, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5942457/, and https://simplemaps.com/data/us-cities >
+
+### Data format
+
+A data frame with columns:
+
+|variable     |class     |description                                              |
+|:------------|:---------|:--------------------------------------------------------|
+|data         |character |The data object used to calculate digit counts           |
+|country      |character |The location or group within each data object            |
+|last         |character |The last digit number                                    |
+|n            |integer   |The count of numbers that ended with that digit          |
+|percent      |numeric   |The percent of the total for each data and country group |
+|last_percent |numeric   |The expected propoprtion under complete randomness       |
 
 
 

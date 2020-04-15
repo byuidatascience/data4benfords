@@ -215,28 +215,6 @@
 'benford'
 
 
-
-#'
-#' @title The counts and percentage of last digits for all data objects
-#' @description This data has to counts by last digit for the election, waitlist, and cities data
-#' @format A data frame with columns:
-#' \describe{
-#'  \item{data}{The variable is character. The data object used to calculate digit counts}
-#'  \item{country}{The variable is character. The location or group within each data object}
-#'  \item{last}{The variable is character. }
-#'  \item{n}{The variable is integer. The count of numbers that started with that digit}
-#'  \item{percent}{The variable is numeric. The percent of the total for each data and country group}
-#'  \item{last_percent}{The variable is numeric. }
-#' }
-#' @source \url{https://github.com/midnightradio/cse140-data-programming, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5942457/, and https://simplemaps.com/data/us-cities}
-#' @examples
-#' \dontrun{
-#' last_digit
-#'}
-'last_digit'
-
-
-
 #'
 #' @title The counts and percentage of last digits for college students asked to pick random numbers
 #' @description This data has to counts by last digit for the random guesses
@@ -254,6 +232,27 @@
 #' pick_random
 #'}
 'pick_random'
+
+
+
+#'
+#' @title The counts and percentage of last digits for all data objects
+#' @description This data has to counts by last digit for the election, waitlist, and cities data
+#' @format A data frame with columns:
+#' \describe{
+#'  \item{data}{The variable is character. The data object used to calculate digit counts}
+#'  \item{country}{The variable is character. The location or group within each data object}
+#'  \item{last}{The variable is character. The last digit number}
+#'  \item{n}{The variable is integer. The count of numbers that ended with that digit}
+#'  \item{percent}{The variable is numeric. The percent of the total for each data and country group}
+#'  \item{last_percent}{The variable is numeric. The expected propoprtion under complete randomness}
+#' }
+#' @source \url{https://github.com/midnightradio/cse140-data-programming, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5942457/, and https://simplemaps.com/data/us-cities}
+#' @examples
+#' \dontrun{
+#' last_digit
+#'}
+'last_digit'
 
 
 
