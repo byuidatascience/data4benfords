@@ -1,6 +1,6 @@
 # benfords data package
 
-pacman::p_load(pdftools, tidyverse, stringr, purrr, googlesheets4)
+pacman::p_load(pdftools, tidyverse, stringr, purrr, googlesheets4, benford.analysis)
 
 random_guess <- read_sheet("https://docs.google.com/spreadsheets/d/1TasFdyWr9xN7uWiWw0PkaFDwHYgQiC3y41YKR9CFRlA/edit#gid=0") 
 rgall <- random_guess
@@ -229,8 +229,6 @@ usethis::use_data(waitlist, waitlist_finland, waitlist_spain,
                   cities, cities_fiction, cities_us,
                   pick_random, benford, last_digit)
 
-usethis::use_data(benford, last_digit)
-
 dpr_export(pick_random, export_folder = path(package_path, "data-raw"), 
            export_format = c(".csv", ".json", ".xlsx", ".sav", ".dta"))
 dpr_export(benford, export_folder = path(package_path, "data-raw"), 
@@ -365,6 +363,212 @@ dpr_readme(usethis::proj_get(), package_name_text, user)
 
 dpr_push(folder_dir = usethis::proj_get(), message = "'Second Push'", repo_url = NULL)
 
+### Accounting data ###
+
+# https://github.com/carloscinelli/benford.analysis/blob/master/data/corporate.payment.rda
+
+# A dataset containing the card transactions for a government entity - 2010.
+load("data/purchasing.cards.2010.rda")
+
+# A dataset containing the amounts paid to vendors for the 90 days preceding liquidation - 2009.
+load("data/gm.payments.rda")
+
+# Financial Statements numbers of Sino Forest Corporation's 2010 Report.
+load("data/sino.forest.rda")
+
+# A dataset of the 2010's payments data of a division of a West Coast utility company.
+load("data/corporate.payment.rda")
+
+government_data <- purchasing.cards.2010 %>% as_tibble()
+gm_data <- gm.payments %>% as_tibble()
+sino_data <- sino.forest %>% as_tibble()
+utility_data <- corporate.payment %>% as_tibble()
+
+accounting_gm <- gm_data %>%
+  select(number = Amount) %>%
+  mutate(number = abs(number)) %>%
+  separate(number, into = c("junk", "last"), sep = -1, remove = FALSE) %>%
+  separate(number, into = "first", sep = 1, remove = FALSE) %>%
+  select(-junk)
+
+accounting_sino <- sino_data %>%
+  select(number = value) %>%
+  mutate(number = abs(number)) %>%
+  separate(number, into = c("junk", "last"), sep = -1, remove = FALSE) %>%
+  separate(number, into = "first", sep = 1, remove = FALSE) %>%
+  select(-junk) 
+
+# utility has more data
+accounting_utility <- utility_data %>%
+  select(number = Amount) %>%
+  mutate(number = abs(number)) %>%
+  separate(number, into = c("junk", "last"), sep = -1, remove = FALSE) %>%
+  separate(number, into = "first", sep = 1, remove = FALSE) %>%
+  select(-junk) 
+
+# government has more data
+accounting_government <- government_data %>%
+  mutate(number = parse_number(as.character(AMOUNT)) %>% abs() ) %>%
+  select(number) %>%
+  separate(number, into = c("junk", "last"), sep = -1, remove = FALSE) %>%
+  separate(number, into = "first", sep = 1, remove = FALSE) %>%
+  select(-junk)
+
+accounting <- bind_rows(
+  tibble(accounting_government, data = "government"),
+  tibble(accounting_utility, data = "utility"),
+  tibble(accounting_gm, data = "gm"),
+  tibble(accounting_sino, data = "sino")
+) %>%
+  select(data, everything())
+
+benford_accounting <- accounting %>%
+  filter(first != 0) %>%
+  count(data, first) %>%
+  group_by(data) %>%
+  mutate(percent = n/sum(n),
+         benford_percent = log(1 + 1/as.numeric(first))/log(10)) %>%
+  ungroup()
+
+last_digit_accounting <- accounting %>%
+  count(data, last) %>%
+  group_by(data) %>%
+  mutate(percent = n/sum(n),
+         last_percent = 1/10) %>%
+  ungroup()
+
+## accounting descriptions ##
+
+accounting_description <- list(number = "The number of votes cast for the candidate",
+                               first = "The first digit of number",
+                               last = "The last digit of number")
+
+
+### create data object ###
+
+government_data <- government_data %>%
+  rename_all(str_to_lower) %>%
+  mutate(cardnum = as.character(cardnum), date = dmy(as.character(date)), 
+         merchnum = as.character(merchnum), 
+         merchdescription = as.character(merchdescription),
+         merchstate = as.character(merchstate), merchzip = as.character(merchzip),
+         transtype = as.character(transtype), amount = parse_number(as.character(amount)))
+utility_data <- utility_data %>%
+  rename_all(str_to_lower)
+
+usethis::use_data(accounting, accounting_gm, accounting_government, accounting_sino, accounting_utility,
+                  last_digit_accounting, benford_accounting, 
+                  government_data, utility_data)
+
+dpr_export(accounting, export_folder = path(package_path, "data-raw"), 
+           export_format = c(".csv", ".json", ".xlsx", ".sav", ".dta"))
+
+dpr_export(accounting_gm, export_folder = path(package_path, "data-raw"), 
+           export_format = c(".csv", ".json", ".xlsx", ".sav", ".dta"))
+
+dpr_export(accounting_government, export_folder = path(package_path, "data-raw"), 
+           export_format = c(".csv", ".json", ".xlsx", ".sav", ".dta"))
+
+dpr_export(accounting_sino, export_folder = path(package_path, "data-raw"), 
+           export_format = c(".csv", ".json", ".xlsx", ".sav", ".dta"))
+
+dpr_export(accounting_utility, export_folder = path(package_path, "data-raw"), 
+           export_format = c(".csv", ".json", ".xlsx", ".sav", ".dta"))
+
+dpr_export(last_digit_accounting, export_folder = path(package_path, "data-raw"), 
+           export_format = c(".csv", ".json", ".xlsx", ".sav", ".dta"))
+
+dpr_export(benford_accounting, export_folder = path(package_path, "data-raw"), 
+           export_format = c(".csv", ".json", ".xlsx", ".sav", ".dta"))
+
+dpr_export(government_data, export_folder = path(package_path, "data-raw"), 
+           export_format = c(".csv", ".json", ".xlsx", ".sav", ".dta"))
+
+dpr_export(utility_data, export_folder = path(package_path, "data-raw"), 
+           export_format = c(".csv", ".json", ".xlsx", ".sav", ".dta"))
+
+### Document accounting
+
+dpr_document(accounting, extension = ".md.R", export_folder = usethis::proj_get(),
+             object_name = "accounting", 
+             title = "The combined accounting data sets",
+             description = "The data is built to have the count in the number column with the first and last digit separated",
+             source = "https://github.com/carloscinelli/benford.analysis and https://www.amazon.com/Benfords-Law-Applications-Accounting-Detection/dp/1118152859",
+             var_details = c(data = "The data object used to calculate digit counts", accounting_description))
+
+dpr_document(accounting_gm, extension = ".md.R", export_folder = usethis::proj_get(),
+             object_name = "accounting_gm", 
+             title = "The amounts paid to vendors for the 90 days preceding General Motor's 2009 liquidation.",
+             description = "The data is built to have the count in the number column with the first and last digit separated",
+             source = "https://github.com/carloscinelli/benford.analysis and https://www.amazon.com/Benfords-Law-Applications-Accounting-Detection/dp/1118152859",
+             var_details = accounting_description)
+
+
+dpr_document(accounting_government, extension = ".md.R", export_folder = usethis::proj_get(),
+             object_name = "accounting_government", 
+             title = "A dataset containing the card transactions for a government entity - 2010.",
+             description = "The data is built to have the count in the number column with the first and last digit separated",
+             source = "https://github.com/carloscinelli/benford.analysis and https://www.amazon.com/Benfords-Law-Applications-Accounting-Detection/dp/1118152859",
+             var_details = accounting_description)
+
+dpr_document(accounting_sino, extension = ".md.R", export_folder = usethis::proj_get(),
+             object_name = "accounting_sino", 
+             title = "Financial Statements numbers of Sino Forest Corporation's 2010 Report.",
+             description = "The data is built to have the count in the number column with the first and last digit separated",
+             source = "https://github.com/carloscinelli/benford.analysis and https://www.amazon.com/Benfords-Law-Applications-Accounting-Detection/dp/1118152859",
+             var_details = accounting_description)
+
+dpr_document(accounting_utility, extension = ".md.R", export_folder = usethis::proj_get(),
+             object_name = "accounting_utility", 
+             title = "A dataset of the 2010's payments data of a division of a West Coast utility company.",
+             description = "The data is built to have the count in the number column with the first and last digit separated",
+             source = "https://github.com/carloscinelli/benford.analysis and https://www.amazon.com/Benfords-Law-Applications-Accounting-Detection/dp/1118152859",
+             var_details = accounting_description)
+
+### full data sets
+
+dpr_document(utility_data, extension = ".md.R", export_folder = usethis::proj_get(),
+             object_name = "untility_data", 
+             title = "A full dataset of the 2010's payments data of a division of a West Coast utility company.",
+             description = "This data adds a few more variables beyond accounting_utility",
+             source = "https://github.com/carloscinelli/benford.analysis and https://www.amazon.com/Benfords-Law-Applications-Accounting-Detection/dp/1118152859",
+             var_details = list(vendornum = "Vendor Number", 
+                                date = "Date of the invioce",
+                                invnum = "The invoice number",
+                                amount = "The amount on the invoice"))
+
+
+dpr_document(government_data, extension = ".md.R", export_folder = usethis::proj_get(),
+             object_name = "government_data", 
+             title = "A full dataset containing the card transactions for a government entity - 2010.",
+             description = "This data adds a few more variables beyond accounting_government",
+             source = "https://github.com/carloscinelli/benford.analysis and https://www.amazon.com/Benfords-Law-Applications-Accounting-Detection/dp/1118152859",
+             var_details = list(cardnum = "Credit card number used for the purchase",
+                                date = "The date of the transaction",
+                                merchnum = "The merchant number",
+                                merchantdescription = "the merchant name and details",
+                                merchstate = "The state where the merchant is located",
+                                merchzip = "The zipcode of the merchant",
+                                transtype = "The transaction type. A, D, P, Y",
+                                amount = "the amount ot the transaction"))
+
+## tabulated data 
+
+dpr_document(benford_accounting, extension = ".md.R", export_folder = usethis::proj_get(),
+             object_name = "benford_accounting", 
+             title = "The counts and percentage of first digits for all data objects",
+             description = "This data has to counts by first digit for the accounting data",
+             source = "https://github.com/carloscinelli/benford.analysis and https://www.amazon.com/Benfords-Law-Applications-Accounting-Detection/dp/1118152859",
+             var_details = benford_description[-2])
+
+dpr_document(last_digit_accounting, extension = ".md.R", export_folder = usethis::proj_get(),
+             object_name = "last_digit_accounting", 
+             title = "The counts and percentage of last digits for all data objects",
+             description = "This data has to counts by last digit for the accounting data",
+             source = "https://github.com/carloscinelli/benford.analysis and https://www.amazon.com/Benfords-Law-Applications-Accounting-Detection/dp/1118152859",
+             var_details = last_digit_description)
+
+dpr_push(folder_dir = usethis::proj_get(), message = "'Accounting data push'", repo_url = NULL)
 
 
 
