@@ -400,9 +400,9 @@
 #' @source \url{https://github.com/carloscinelli/benford.analysis and https://www.amazon.com/Benfords-Law-Applications-Accounting-Detection/dp/1118152859}
 #' @examples
 #' \dontrun{
-#' untility_data
+#' utility_data
 #'}
-'untility_data'
+'utility_data'
 
 
 

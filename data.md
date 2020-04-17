@@ -461,7 +461,7 @@ A data frame with columns:
 
 ## A full dataset of the 2010's payments data of a division of a West Coast utility company.
 
-The data is called untility_data.
+The data is called utility_data.
 
 ### Description
 
