@@ -481,7 +481,6 @@ A data frame with columns:
 |amount    |numeric   |The amount on the invoice |
 
 
-
 ## A full dataset containing the card transactions for a government entity - 2010.
 
 The data is called government_data.
@@ -496,16 +495,21 @@ The source of this data is < https://github.com/carloscinelli/benford.analysis a
 
 A data frame with columns:
 
-|variable         |class     |description                              |
-|:----------------|:---------|:----------------------------------------|
-|cardnum          |character |Credit card number used for the purchase |
-|date             |Date      |The date of the transaction              |
-|merchnum         |character |The merchant number                      |
-|merchdescription |character |NA                                       |
-|merchstate       |character |The state where the merchant is located  |
-|merchzip         |character |The zipcode of the merchant              |
-|transtype        |character |The transaction type. A, D, P, Y         |
-|amount           |numeric   |the amount ot the transaction            |
+|variable         |class     |description                                                    |
+|:----------------|:---------|:--------------------------------------------------------------|
+|cardnum          |character |Credit card number used for the purchase                       |
+|date             |Date      |The date of the transaction                                    |
+|merchnum         |character |The merchant number                                            |
+|merchdescription |character |the merchant name and details                                  |
+|merchstate       |character |The state where the merchant is located                        |
+|merchzip         |character |The zipcode of the merchant                                    |
+|transtype        |character |The transaction type. A, D, P, Y                               |
+|amount           |numeric   |the amount ot the transaction                                  |
+|merch_clean      |character |A cleaned merchant name                                        |
+|merch_other200   |character |All merchants with less than 200 transactions grouped to other |
+|merch_other100   |character |All merchants with less than 100 transactions grouped to other |
+|merch_other50    |character |All merchants with less than 50 transactions grouped to other  |
+|merch_other10    |character |All merchants with less than 10 transactions grouped to other  |
 
 
 

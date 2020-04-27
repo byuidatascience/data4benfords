@@ -404,8 +404,6 @@
 #'}
 'utility_data'
 
-
-
 #'
 #' @title A full dataset containing the card transactions for a government entity - 2010.
 #' @description This data adds a few more variables beyond accounting_government
@@ -414,11 +412,16 @@
 #'  \item{cardnum}{The variable is character. Credit card number used for the purchase}
 #'  \item{date}{The variable is Date. The date of the transaction}
 #'  \item{merchnum}{The variable is character. The merchant number}
-#'  \item{merchdescription}{The variable is character. }
+#'  \item{merchdescription}{The variable is character. the merchant name and details}
 #'  \item{merchstate}{The variable is character. The state where the merchant is located}
 #'  \item{merchzip}{The variable is character. The zipcode of the merchant}
 #'  \item{transtype}{The variable is character. The transaction type. A, D, P, Y}
 #'  \item{amount}{The variable is numeric. the amount ot the transaction}
+#'  \item{merch_clean}{The variable is character. A cleaned merchant name}
+#'  \item{merch_other200}{The variable is character. All merchants with less than 200 transactions grouped to other}
+#'  \item{merch_other100}{The variable is character. All merchants with less than 100 transactions grouped to other}
+#'  \item{merch_other50}{The variable is character. All merchants with less than 50 transactions grouped to other}
+#'  \item{merch_other10}{The variable is character. All merchants with less than 10 transactions grouped to other}
 #' }
 #' @source \url{https://github.com/carloscinelli/benford.analysis and https://www.amazon.com/Benfords-Law-Applications-Accounting-Detection/dp/1118152859}
 #' @examples

@@ -1,6 +1,6 @@
 # benfords data package
 
-pacman::p_load(pdftools, tidyverse, stringr, purrr, googlesheets4, benford.analysis)
+pacman::p_load(pdftools, tidyverse, stringr, purrr, googlesheets4, benford.analysis, DataPushR, lubridate, fs)
 
 random_guess <- read_sheet("https://docs.google.com/spreadsheets/d/1TasFdyWr9xN7uWiWw0PkaFDwHYgQiC3y41YKR9CFRlA/edit#gid=0") 
 rgall <- random_guess
@@ -379,7 +379,35 @@ load("data/sino.forest.rda")
 # A dataset of the 2010's payments data of a division of a West Coast utility company.
 load("data/corporate.payment.rda")
 
-government_data <- purchasing.cards.2010 %>% as_tibble()
+government_data <- purchasing.cards.2010 %>% 
+  as_tibble() %>%
+  rename_all(str_to_lower) %>%
+  mutate(cardnum = as.character(cardnum), date = dmy(as.character(date)), 
+         merchnum = as.character(merchnum), 
+         merchdescription = as.character(merchdescription),
+         merchstate = as.character(merchstate), merchzip = as.character(merchzip),
+         transtype = as.character(transtype), amount = parse_number(as.character(amount)),
+         merch_clean = merchdescription %>%
+           str_remove_all("[0-9]{1,2}/[0-9]{1,2}/[0-9{1,2}]") %>%
+           str_remove_all("\\*IN\\#[0-9]{1,15}|\\*INV\\#[0-9]{1,15}") %>%
+           str_remove_all("#[0-9]{1,15}") %>%
+           str_remove_all("#[0-9]{1,15}") %>%
+           str_remove_all("\\*[0-9| ]{1,15}") %>%
+           str_remove_all("      [0-9]{1,15}") %>%
+           str_trim(),
+         merch_other200 = fct_lump_min(merch_clean, 200) %>% as.character(),
+         merch_other100 = fct_lump_min(merch_clean, 100) %>% as.character(),
+         merch_other50 = fct_lump_min(merch_clean, 50) %>% as.character(),
+         merch_other10 = fct_lump_min(merch_clean, 10) %>% as.character()
+  )
+
+
+
+utility_data <- utility_data %>%
+  rename_all(str_to_lower)
+
+
+
 gm_data <- gm.payments %>% as_tibble()
 sino_data <- sino.forest %>% as_tibble()
 utility_data <- corporate.payment %>% as_tibble()
@@ -445,16 +473,6 @@ accounting_description <- list(number = "The number of votes cast for the candid
 
 
 ### create data object ###
-
-government_data <- government_data %>%
-  rename_all(str_to_lower) %>%
-  mutate(cardnum = as.character(cardnum), date = dmy(as.character(date)), 
-         merchnum = as.character(merchnum), 
-         merchdescription = as.character(merchdescription),
-         merchstate = as.character(merchstate), merchzip = as.character(merchzip),
-         transtype = as.character(transtype), amount = parse_number(as.character(amount)))
-utility_data <- utility_data %>%
-  rename_all(str_to_lower)
 
 usethis::use_data(accounting, accounting_gm, accounting_government, accounting_sino, accounting_utility,
                   last_digit_accounting, benford_accounting, 
@@ -546,11 +564,17 @@ dpr_document(government_data, extension = ".md.R", export_folder = usethis::proj
              var_details = list(cardnum = "Credit card number used for the purchase",
                                 date = "The date of the transaction",
                                 merchnum = "The merchant number",
-                                merchantdescription = "the merchant name and details",
+                                merchdescription = "the merchant name and details",
                                 merchstate = "The state where the merchant is located",
                                 merchzip = "The zipcode of the merchant",
                                 transtype = "The transaction type. A, D, P, Y",
-                                amount = "the amount ot the transaction"))
+                                amount = "the amount ot the transaction",
+                                merch_clean = "A cleaned merchant name",
+                                merch_other200 = "All merchants with less than 200 transactions grouped to other",
+                                merch_other100 = "All merchants with less than 100 transactions grouped to other",
+                                merch_other50 = "All merchants with less than 50 transactions grouped to other",
+                                merch_other10 = "All merchants with less than 10 transactions grouped to other"
+                                ))
 
 ## tabulated data 
 
@@ -569,7 +593,7 @@ dpr_document(last_digit_accounting, extension = ".md.R", export_folder = usethis
              var_details = last_digit_description)
 
 
-dpr_write_script(folder_dir = package_path, r_read = "scripts/tuberculosis_package.R", 
+dpr_write_script(folder_dir = package_path, r_read = "scripts/benford_package.R", 
                  r_folder_write = "data-raw", r_write = str_c(package_name_text, ".R"))
 devtools::document(package_path)
 dpr_push(folder_dir = package_path, message = "'documentation'", repo_url = NULL)
